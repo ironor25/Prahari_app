@@ -36,7 +36,5 @@ RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available
 
 EXPOSE 80
 
-CMD php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan migrate --force && \
+CMD php artisan migrate --force && \
     apache2-foreground
