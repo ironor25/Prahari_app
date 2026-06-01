@@ -8,12 +8,12 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libonig-dev \
     libxml2-dev \
-    libpq-dev
+    sqlite3 \
+    libsqlite3-dev
 
 RUN docker-php-ext-install \
     pdo \
-    pdo_mysql \
-    pdo_pgsql \
+    pdo_sqlite \
     mbstring \
     zip \
     exif \
@@ -29,9 +29,14 @@ COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
 
-RUN chown -R www-data:www-data storage bootstrap/cache
-RUN chmod -R 775 storage bootstrap/cache
+# Create SQLite database file
+RUN touch database/database.sqlite
 
+# Set permissions
+RUN chown -R www-data:www-data storage bootstrap/cache database
+RUN chmod -R 775 storage bootstrap/cache database
+
+# Set Apache public directory
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
 
 EXPOSE 80
