@@ -31,7 +31,12 @@ RUN composer install --no-dev --optimize-autoloader
 
 RUN touch database/database.sqlite
 
-RUN mkdir -p public/assets/video
+# Create necessary Laravel storage framework directories
+RUN mkdir -p storage/framework/cache/data \
+             storage/framework/sessions \
+             storage/framework/views \
+             storage/logs \
+             public/assets/video
 
 RUN chown -R www-data:www-data storage bootstrap/cache database public/assets/video
 
