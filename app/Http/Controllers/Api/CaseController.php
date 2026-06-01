@@ -75,17 +75,29 @@ class CaseController extends Controller
         }
 
         $evidencePath = null;
+        try{
         if ($request->hasFile('evidence')) {
             $file = $request->file('evidence');
             $extension = $file->getClientOriginalExtension() ?: 'mp4';
             $fileName = $nextCaseId . '.' . $extension;
-            
+            $destinationPath = public_path('assets/video');
+
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0777, true);
+            }
             // Move file to public/assets/video/
-            $file->move(public_path('assets/video'), $fileName);
+            $file->move($destinationPath, $fileName);
             
             $evidencePath = 'assets/video/' . $fileName;
         }
-
+            }
+        catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+        
         $case = Cases::create([
             'case_id' => $nextCaseId,
             'prahari_id' => $prahari->id,
