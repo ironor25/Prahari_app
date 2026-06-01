@@ -122,7 +122,7 @@ class AuthController extends Controller
 
     public function getConnectionId(Request  $request){
             $app_api_key = config('app.api_key');
-            if($app_api_key == $request->header('app_api_key')){
+            if($app_api_key == $request->header('App-Api-Key')){
                 $data  = ConnectionRequest::create([
                     'connection_id' => Str::random(32)
                 ]);
