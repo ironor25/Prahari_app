@@ -14,9 +14,6 @@ use Carbon\Carbon;
 
 class AdminController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
 
     private function getCommonStats() {
         $totalPrahari = Prahari::count();
