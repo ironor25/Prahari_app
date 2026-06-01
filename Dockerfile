@@ -29,12 +29,13 @@ COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
 
-# Create SQLite database file
 RUN touch database/database.sqlite
 
-# Set permissions
-RUN chown -R www-data:www-data storage bootstrap/cache database
-RUN chmod -R 775 storage bootstrap/cache database
+RUN mkdir -p public/assets/video
+
+RUN chown -R www-data:www-data storage bootstrap/cache database public/assets/video
+
+RUN chmod -R 775 storage bootstrap/cache database public/assets/video
 
 # Set Apache public directory
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
