@@ -19,10 +19,10 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             CaseCategorySeeder::class,
-            PrahariSeeder::class,
-            CasesSeeder::class,
-            ChallanSeeder::class,
-            TransactionSeeder::class,
+            // PrahariSeeder::class,
+            // CasesSeeder::class,
+            // ChallanSeeder::class,
+            // TransactionSeeder::class,
         ]);
     }
 }

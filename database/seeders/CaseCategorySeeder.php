@@ -2,16 +2,26 @@
 
 namespace Database\Seeders;
 
-use App\Models\CaseCategory;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class CaseCategorySeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        CaseCategory::factory(5)->create();
+        DB::table('case_categories')->insert([
+            [
+                'case_category_name' => 'No Helmet',
+                'fine_amount' => 500,
+            ],
+            [
+                'case_category_name' => 'Drunk and Drive',
+                'fine_amount' => 1000,
+            ],
+            [
+                'case_category_name' => 'Overspeeding',
+                'fine_amount' => 700,
+            ],
+        ]);
     }
 }
