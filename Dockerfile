@@ -7,7 +7,8 @@ RUN apt-get update && apt-get install -y \
     curl \
     libzip-dev \
     libonig-dev \
-    libxml2-dev
+    libxml2-dev \
+    libpq-dev
 
 RUN docker-php-ext-install \
     pdo \
