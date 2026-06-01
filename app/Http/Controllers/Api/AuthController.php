@@ -104,7 +104,7 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-        $conn_id = $request->header('connection_id');
+        $conn_id = $request->header('Connection-Id');
 
         $data = ConnectionRequest::where('connection_id', $conn_id)->first();
         if($data){
@@ -143,7 +143,7 @@ class AuthController extends Controller
     }
 
     public function requestOtp(Request $request){
-            $conn = $this->validateConnection($request->header('connection_id'));
+            $conn = $this->validateConnection($request->header('Connection-Id'));
             if(!$conn){
                 return response()->json([
                 'status' => 400,
@@ -187,7 +187,7 @@ class AuthController extends Controller
     }
 
     public function verifyOtp(Request $request){
-           $conn  = $this->validateConnection($request->header('connection_id'));
+           $conn  = $this->validateConnection($request->header('Connection-Id'));
            if(!$conn){
             return response()->json([
                 'status' => 400,

@@ -17,8 +17,8 @@ class VerifyUser
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = ConnectionRequest::where('connection_id', $request->header('connection_id'))
-                ->where('auth_code', $request->header('auth_code'))
+        $user = ConnectionRequest::where('connection_id', $request->header('Connection-Id'))
+                ->where('auth_code', $request->header('Auth-Code'))
                 ->first();  // Execute the query and get first record
         
         if (!$user) {
