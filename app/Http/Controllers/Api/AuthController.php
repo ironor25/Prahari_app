@@ -136,7 +136,8 @@ class AuthController extends Controller
             }
             return response()->json([
                 'status'=>401,
-                'message' => 'Invalid api key'
+                'message' => 'Invalid api key',
+                'data'=> $app_api_key
             ]);
     }
 
