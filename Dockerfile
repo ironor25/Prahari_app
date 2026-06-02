@@ -1,52 +1,47 @@
-FROM php:8.2-apache
+FROM php:8.2-fpm
 
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
+    nginx \
+    curl \
     git \
     unzip \
-    zip \
-    curl \
-    libzip-dev \
-    libonig-dev \
+    libpng-dev \
     libxml2-dev \
-    sqlite3 \
-    libsqlite3-dev
-
-RUN docker-php-ext-install \
-    pdo \
-    pdo_sqlite \
-    mbstring \
+    libzip-dev \
     zip \
-    exif \
-    pcntl
+    libonig-dev \
+    libpq-dev
 
-RUN a2enmod rewrite
+# Clear apt cache
+RUN rm -rf /var/lib/apt/lists/*
 
+# Install PHP extensions
+RUN docker-php-ext-install pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd zip
+
+# Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Set working directory
 WORKDIR /var/www/html
 
-COPY . .
+# Copy application code
+COPY . /var/www/html
 
+# Run composer install
 RUN composer install --no-dev --optimize-autoloader
 
-RUN touch database/database.sqlite
+# Set up permissions
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Create necessary Laravel storage framework directories
-RUN mkdir -p storage/framework/cache/data \
-             storage/framework/sessions \
-             storage/framework/views \
-             storage/logs \
-             public/assets/video
+# Copy custom Nginx configuration
+COPY docker/nginx.conf /etc/nginx/sites-available/default
 
-RUN chown -R www-data:www-data storage bootstrap/cache database public/assets/video
+# Copy entrypoint script
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
-RUN chmod -R 775 storage bootstrap/cache database public/assets/video
-
-# Set Apache public directory
-RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
-
+# Expose port
 EXPOSE 80
 
-CMD php artisan migrate --force && \
-    php artisan db:seed --force && \
-    apache2-foreground
+ENTRYPOINT ["entrypoint.sh"]
