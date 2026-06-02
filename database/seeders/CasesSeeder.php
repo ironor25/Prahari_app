@@ -25,7 +25,7 @@ class CasesSeeder extends Seeder
                     'case_category_id' => $cat1->id,
                     'location' => 'Main Street, City Center',
                     'evidence' => 'evidence1.jpg',
-                    'status' => 'approved',
+                    'status' => 'Approved',
                     'created_at' => Carbon::now()->subDays(2)
                 ]
             );
@@ -39,7 +39,7 @@ class CasesSeeder extends Seeder
                     'case_category_id' => $cat2->id,
                     'location' => 'Highway 45',
                     'evidence' => 'evidence2.jpg',
-                    'status' => 'approved',
+                    'status' => 'Approved',
                     'created_at' => Carbon::now()->subDays(1)
                 ]
             );

@@ -21,7 +21,7 @@ class ChallanSeeder extends Seeder
                     'vehicle_number' => $case->vehicle_number,
                     'category_id' => $case->case_category_id,
                     'fine_amount' => $case->caseCategory ? $case->caseCategory->fine_amount : 500,
-                    'status' => 'Paid',
+                    'status' => 'paid',
                     'created_at' => $case->created_at->addHours(1)
                 ]
             );
