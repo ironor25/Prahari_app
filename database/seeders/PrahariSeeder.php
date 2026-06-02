@@ -17,7 +17,7 @@ class PrahariSeeder extends Seeder
             [
                 'name' => 'Prahari One',
                 'password' => Hash::make('password'),
-                'role' => 'prahari'
+                'role' => 'user'
             ]
         );
 
@@ -39,7 +39,7 @@ class PrahariSeeder extends Seeder
             [
                 'name' => 'Prahari Two',
                 'password' => Hash::make('password'),
-                'role' => 'prahari'
+                'role' => 'user'
             ]
         );
 
