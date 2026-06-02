@@ -34,6 +34,9 @@ RUN composer install --no-dev --optimize-autoloader
 # Set up permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
+# Remove the packaged default nginx site so only our app config is loaded
+RUN rm -f /etc/nginx/sites-enabled/default /etc/nginx/sites-available/default || true
+
 # Copy custom Nginx configuration
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 
