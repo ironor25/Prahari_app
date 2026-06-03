@@ -70,7 +70,18 @@ class CaseController extends Controller
         $case = Cases::with('caseCategory')->findOrFail($id);
         $case->update(['status' => $request->status]);
 
- 
+        if ($request->status === 'Approved') {
+            Challan::firstOrCreate(
+                ['case_id' => $case->id],
+                [
+                    'prahari_id' => $case->prahari_id,
+                    'category_id' => $case->case_category_id,
+                    'vehicle_number' => $case->vehicle_number,
+                    'fine_amount' => $case->caseCategory ? $case->caseCategory->fine_amount : 0,
+                    'status' => 'pending',
+                ]
+            );
+        }
 
         return response()->json(['success' => 'Case ' . $request->status . ' successfully.']);
     }
@@ -91,7 +102,21 @@ class CaseController extends Controller
             'status' => 'required|in:Open,Approved,Rejected',
         ]);
 
-        Cases::create($validated);
+        $case = Cases::create($validated);
+
+        if ($case->status === 'Approved') {
+            $case->load('caseCategory');
+            Challan::firstOrCreate(
+                ['case_id' => $case->id],
+                [
+                    'prahari_id' => $case->prahari_id,
+                    'category_id' => $case->case_category_id,
+                    'vehicle_number' => $case->vehicle_number,
+                    'fine_amount' => $case->caseCategory ? $case->caseCategory->fine_amount : 0,
+                    'status' => 'pending',
+                ]
+            );
+        }
 
         if ($request->ajax()) {
             return response()->json(['success' => 'Case created successfully.']);
@@ -133,6 +158,20 @@ class CaseController extends Controller
 
         $case = Cases::findOrFail($id);
         $case->update($validated);
+
+        if ($case->status === 'Approved') {
+            $case->load('caseCategory');
+            Challan::firstOrCreate(
+                ['case_id' => $case->id],
+                [
+                    'prahari_id' => $case->prahari_id,
+                    'category_id' => $case->case_category_id,
+                    'vehicle_number' => $case->vehicle_number,
+                    'fine_amount' => $case->caseCategory ? $case->caseCategory->fine_amount : 0,
+                    'status' => 'pending',
+                ]
+            );
+        }
 
         if ($request->ajax()) {
             return response()->json(['success' => 'Case updated successfully.']);

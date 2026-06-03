@@ -43,8 +43,13 @@ class AdminController extends Controller
         $challanData = $challanStatuses->pluck('count')->toArray();
 
         // Monthly Challan Trend
-        $challanTrend = Challan::selectRaw('TRIM(TO_CHAR(created_at, \'Month\')) as month, COUNT(id) as count, EXTRACT(MONTH FROM created_at) as month_num')
-            ->groupByRaw('TRIM(TO_CHAR(created_at, \'Month\')), EXTRACT(MONTH FROM created_at)')
+        $driver = \Illuminate\Support\Facades\DB::connection()->getDriverName();
+        $monthSelect = $driver === 'pgsql' 
+            ? "TRIM(TO_CHAR(created_at, 'Month'))" 
+            : "DATE_FORMAT(created_at, '%M')";
+
+        $challanTrend = Challan::selectRaw($monthSelect . ' as month, COUNT(id) as count, EXTRACT(MONTH FROM created_at) as month_num')
+            ->groupByRaw($monthSelect . ', EXTRACT(MONTH FROM created_at)')
             ->orderBy('month_num')
             ->get();
         $challanTrendLabels = $challanTrend->pluck('month')->toArray();
@@ -52,8 +57,8 @@ class AdminController extends Controller
 
         // Monthly Revenue Trend (75% of paid challans)
         $revenueTrend = Challan::where('status', 'Paid')
-            ->selectRaw('TRIM(TO_CHAR(created_at, \'Month\')) as month, SUM(fine_amount) * 0.75 as revenue, EXTRACT(MONTH FROM created_at) as month_num')
-            ->groupByRaw('TRIM(TO_CHAR(created_at, \'Month\')), EXTRACT(MONTH FROM created_at)')
+            ->selectRaw($monthSelect . ' as month, SUM(fine_amount) * 0.75 as revenue, EXTRACT(MONTH FROM created_at) as month_num')
+            ->groupByRaw($monthSelect . ', EXTRACT(MONTH FROM created_at)')
             ->orderBy('month_num')
             ->get();
         $revenueTrendLabels = $revenueTrend->pluck('month')->toArray();
