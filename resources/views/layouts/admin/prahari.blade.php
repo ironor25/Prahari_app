@@ -172,6 +172,9 @@
                 $('#bank_account').val(data.bank_account);
                 $('#aadhaar_status').val(data.aadhaar_status);
                 $('#status').val(data.status);
+            }).fail(function(xhr) {
+                console.error(xhr);
+                showToast('Failed to fetch Prahari data: ' + xhr.statusText, 'error');
             });
         });
 

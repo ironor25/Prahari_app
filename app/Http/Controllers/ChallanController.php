@@ -75,10 +75,7 @@ class ChallanController extends Controller
     public function edit($id)
     {
         $challan = Challan::findOrFail($id);
-        if (request()->  ajax()) {
-            return response()->json($challan);
-        }
-        return view('admin.challans.edit', compact('challan'));
+        return response()->json($challan);
     }
 
     public function update(Request $request, $id)

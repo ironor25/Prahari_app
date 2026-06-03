@@ -139,10 +139,7 @@ class CaseController extends Controller
     public function edit(int $id)
     {
         $case = Cases::findOrFail($id);
-        if (request()->ajax()) {
-            return response()->json($case);
-        }
-        return view('admin.cases.edit', compact('case'));
+        return response()->json($case);
     }
 
     public function update(Request $request, int $id)

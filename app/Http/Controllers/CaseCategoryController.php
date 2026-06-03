@@ -59,10 +59,7 @@ class CaseCategoryController extends Controller
     public function edit($id)
     {
         $caseCategory = CaseCategory::findOrFail($id);
-        if (request()->ajax()) {
-            return response()->json($caseCategory);
-        }
-        return view('admin.case_categories.edit', compact('caseCategory'));
+        return response()->json($caseCategory);
     }
 
     public function update(Request $request, $id)

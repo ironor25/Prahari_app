@@ -64,10 +64,7 @@ class PrahariController extends Controller
     public function edit($id)
     {
         $prahari = Prahari::findOrFail($id);
-        if (request()->ajax()) {
-            return response()->json($prahari);
-        }
-        return view('admin.praharis.edit', compact('prahari'));
+        return response()->json($prahari);
     }
 
     public function update(Request $request, $id)
