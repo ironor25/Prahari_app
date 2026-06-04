@@ -94,7 +94,6 @@ class CaseController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'case_id' => 'nullable|string|max:255|unique:cases,case_id',
             'prahari_id' => 'nullable|exists:praharis,id',
             'case_category_id' => 'nullable|exists:case_categories,id',
             'vehicle_number' => 'nullable|string|max:255',
@@ -145,7 +144,6 @@ class CaseController extends Controller
     public function update(Request $request, int $id)
     {
         $validated = $request->validate([
-            'case_id' => 'nullable|string|max:255|unique:cases,case_id,' . $id,
             'prahari_id' => 'nullable|exists:praharis,id',
             'case_category_id' => 'nullable|exists:case_categories,id',
             'vehicle_number' => 'nullable|string|max:255',

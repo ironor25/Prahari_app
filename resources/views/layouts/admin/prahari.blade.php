@@ -18,11 +18,7 @@
                         @csrf
                         <div class="modal-body">
                             <input type="hidden" name="id" id="hidden_id">
-                            {{-- <div class="mb-3">
-                                <label for="custom_prahari_id" class="form-label">Prahari ID</label>
-                                <input type="text" class="form-control" id="custom_prahari_id" name="prahari_id"
-                                    placeholder="Enter custom ID (e.g. PRA-001)">
-                            </div> --}}
+
                             <div class="mb-3">
                                 <label for="name" class="form-label">Name</label>
                                 <input type="text" class="form-control" id="name" name="name"
@@ -166,7 +162,7 @@
                 $('#modalTitle').html('Edit Prahari');
                 $('#prahariModal').modal('show');
                 $('#hidden_id').val(data.id);
-                $('#custom_prahari_id').val(data.prahari_id);
+
                 $('#name').val(data.name);
                 $('#mobile').val(data.mobile);
                 $('#bank_account').val(data.bank_account);

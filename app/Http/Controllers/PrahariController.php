@@ -38,7 +38,6 @@ class PrahariController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'prahari_id' => 'nullable|string|max:255|unique:praharis,prahari_id',
             'name' => 'required|string|max:255',
             'mobile' => 'required|string|max:15',
             'bank_account' => 'required|string|max:255',
@@ -70,7 +69,6 @@ class PrahariController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'prahari_id' => 'nullable|string|max:255|unique:praharis,prahari_id,' . $id,
             'name' => 'required|string|max:255',
             'mobile' => 'required|string|max:15',
             'bank_account' => 'required|string|max:255',

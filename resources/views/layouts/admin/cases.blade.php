@@ -64,10 +64,7 @@
                 @csrf
                 <div class="modal-body">
                     <input type="hidden" name="id" id="hidden_id">
-                    <div class="mb-3">
-                        <label for="custom_case_id" class="form-label">Case ID</label>
-                        <input type="text" class="form-control" id="custom_case_id" name="case_id" placeholder="Enter custom Case ID (e.g. CAS-001)">
-                    </div>
+
                     <div class="mb-3">
                         <label for="prahari_id" class="form-label">Prahari</label>
                         <select class="form-control" id="prahari_id" name="prahari_id">
@@ -136,10 +133,10 @@
                 <!-- Content -->
                 <div id="viewContent" style="display: none;">
                     <div class="row mb-4">
-                        <div class="col-md-6">
+                        {{-- <div class="col-md-6">
                             <p class="mb-1 text-muted small text-uppercase fw-bold">Case ID</p>
                             <h6 id="view_case_id" class="fw-bold text-dark"></h6>
-                        </div>
+                        </div> --}}
                         <div class="col-md-6">
                             <p class="mb-1 text-muted small text-uppercase fw-bold">Prahari ID</p>
                             <h6 id="view_prahari_id" class="fw-bold text-dark"></h6>
