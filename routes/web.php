@@ -32,6 +32,7 @@ Route::group(['prefix' => 'account','middleware' => 'auth'], function () {
         Route::get('/settings',[AdminController::class,'settings'])->name('settings');
         Route::get('/admins', [AdminController::class, 'admins'])->name('admins');
         Route::post('/admins', [AdminController::class, 'storeAdmin'])->name('admins.store');
+        Route::post('/profile/update', [AdminController::class, 'updateProfile'])->name('profile.update');
         
         // Cases Group
         Route::group(['prefix' => 'cases', 'as' => 'cases.'], function () {

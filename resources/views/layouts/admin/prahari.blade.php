@@ -18,11 +18,11 @@
                         @csrf
                         <div class="modal-body">
                             <input type="hidden" name="id" id="hidden_id">
-                            <div class="mb-3">
+                            {{-- <div class="mb-3">
                                 <label for="custom_prahari_id" class="form-label">Prahari ID</label>
                                 <input type="text" class="form-control" id="custom_prahari_id" name="prahari_id"
                                     placeholder="Enter custom ID (e.g. PRA-001)">
-                            </div>
+                            </div> --}}
                             <div class="mb-3">
                                 <label for="name" class="form-label">Name</label>
                                 <input type="text" class="form-control" id="name" name="name"
@@ -178,30 +178,80 @@
             });
         });
 
-        $('#prahariForm').submit(function(e) {
-            e.preventDefault();
-            let id = $('#hidden_id').val();
-            let url = id ? "{{ route('admin.praharis.index') }}/" + id : "{{ route('admin.praharis.store') }}";
-            let method = id ? 'PUT' : 'POST';
+        $.validator.addMethod("alpha", function(value, element) {
+            return this.optional(element) || /^[a-zA-Z\s]+$/.test(value);
+        }, "Letters only please");
 
-            $.ajax({
-                data: $(this).serialize(),
-                url: url,
-                type: method,
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        $('#prahariForm').validate({
+            rules: {
+                name: {
+                    required: true,
+                    alpha: true
                 },
-                success: function(data) {
-                    $('#prahariForm')[0].reset();
-                    $('#prahariModal').modal('hide');
-                    table.ajax.reload(null, false);
-                    showToast(data.success);
+                mobile: {
+                    required: true,
+                    digits: true,
+                    maxlength:12,
+                    minlength:10
                 },
-                error: function(data) {
-                    console.log('Error:', data);
-                    showToast('Something went wrong!', 'error');
+                bank_account: {
+                    required: true,
+                    digits: true,
+                    maxlength:16,
+                    minlength:9
                 }
-            });
+            },
+            messages: {
+                name: {
+                    alpha: "Please enter only alphabets"
+                },
+                mobile: {
+                    digits: "Please enter a valid mobile number",
+                    maxlength:"Please enter a valid mobile number",
+                    minlength:"Please enter a valid mobile number"
+                },
+                bank_account: {
+                    digits: "Please enter a valid bank account number",
+                    maxlength:"Please enter a valid bank account number",
+                    minlength:"Please enter a valid bank account number"
+                }
+            },
+            errorElement: 'span',
+            errorPlacement: function (error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.mb-3').append(error);
+            },
+            highlight: function (element, errorClass, validClass) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function (element, errorClass, validClass) {
+                $(element).removeClass('is-invalid');
+            },
+            submitHandler: function(form, e) {
+                e.preventDefault();
+                let id = $('#hidden_id').val();
+                let url = id ? "{{ route('admin.praharis.index') }}/" + id : "{{ route('admin.praharis.store') }}";
+                let method = id ? 'PUT' : 'POST';
+
+                $.ajax({
+                    data: $(form).serialize(),
+                    url: url,
+                    type: method,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(data) {
+                        $('#prahariForm')[0].reset();
+                        $('#prahariModal').modal('hide');
+                        table.ajax.reload(null, false);
+                        showToast(data.success);
+                    },
+                    error: function(data) {
+                        console.log('Error:', data);
+                        showToast('Something went wrong!', 'error');
+                    }
+                });
+            }
         });
 
         

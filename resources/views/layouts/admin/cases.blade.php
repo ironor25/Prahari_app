@@ -313,30 +313,61 @@
             });
         }
 
-        $('#caseForm').submit(function(e) {
-            e.preventDefault();
-            let id = $('#hidden_id').val();
-            let url = id ? "{{ route('admin.cases.index') }}/" + id : "{{ route('admin.cases.store') }}";
-            let method = id ? 'PUT' : 'POST';
+        $.validator.addMethod("alphanumeric", function(value, element) {
+            return this.optional(element) || /^[a-zA-Z0-9]+$/.test(value);
+        }, "Letters and numbers only please");
 
-            $.ajax({
-                data: $(this).serialize(),
-                url: url,
-                type: method,
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(data) {
-                    $('#caseForm')[0].reset();
-                    $('#caseModal').modal('hide');
-                    $table.ajax.reload(null, false);
-                    showToast(data.success);
-                },
-                error: function(data) {
-                    console.log('Error:', data);
-                    showToast('Something went wrong!', 'error');
+        $('#caseForm').validate({
+            rules: {
+                vehicle_number: {
+                    alphanumeric: true,
+                    maxlength: 10,
+                    minlength: 7
                 }
-            });
+            },
+            messages: {
+                vehicle_number: {
+                    alphanumeric: "Please enter only alphanumeric characters",
+                    maxlength: "Please enter a valid vehicle number",
+                    minlength: "Please enter a valid vehicle number"
+                }
+            },
+            errorElement: 'span',
+            errorPlacement: function (error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.mb-3').append(error);
+            },
+            highlight: function (element, errorClass, validClass) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function (element, errorClass, validClass) {
+                $(element).removeClass('is-invalid');
+            },
+            submitHandler: function(form, e) {
+                e.preventDefault();
+                let id = $('#hidden_id').val();
+                let url = id ? "{{ route('admin.cases.index') }}/" + id : "{{ route('admin.cases.store') }}";
+                let method = id ? 'PUT' : 'POST';
+
+                $.ajax({
+                    data: $(form).serialize(),
+                    url: url,
+                    type: method,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(data) {
+                        $('#caseForm')[0].reset();
+                        $('#caseModal').modal('hide');
+                        $table.ajax.reload(null, false);
+                        showToast(data.success);
+                    },
+                    error: function(data) {
+                        console.log('Error:', data);
+                        showToast('Something went wrong!', 'error');
+                    }
+                });
+            }
         });
         $('body').on('click', '.deleteBtn', function() {
             let id = $(this).data('id');

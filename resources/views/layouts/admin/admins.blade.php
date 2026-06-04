@@ -117,34 +117,79 @@
             }, 300);
         });
 
-        $('#adminForm').submit(function(e) {
-            e.preventDefault();
-            $('#saveBtn').prop('disabled', true).text('Processing...');
+        $.validator.addMethod("alpha", function(value, element) {
+            return this.optional(element) || /^[a-zA-Z\s]+$/.test(value);
+        }, "Letters only please");
 
-            $.ajax({
-                url: "{{ route('admin.admins.store') }}",
-                type: "POST",
-                data: $(this).serialize(),
-                success: function(response) {
-                    $('#adminModal').modal('hide');
-                    $('#adminForm')[0].reset();
-                    $table.ajax.reload();
-                    showToast(response.success);
+        $('#adminForm').validate({
+            rules: {
+                name: {
+                    required: true,
+                    alpha: true
                 },
-                error: function(xhr) {
-                    let errors = xhr.responseJSON.errors;
-                    let errorMsg = '';
-                    if (errors) {
-                        $.each(errors, function(key, value) {
-                            errorMsg += value[0] + ' ';
-                        });
-                    }
-                    showToast(errorMsg || 'Something went wrong!', 'error');
+                email: {
+                    required: true,
+                    email: true
                 },
-                complete: function() {
-                    $('#saveBtn').prop('disabled', false).text('Create Admin');
+                password: {
+                    required: true,
+                    minlength: 6
                 }
-            });
+            },
+            messages: {
+                name: {
+                    required: "Please enter a name",
+                    alpha: "Please enter only alphabets"
+                },
+                email: {
+                    required: "Please enter an email",
+                    email: "Please enter a valid email address"
+                },
+                password: {
+                    required: "Please enter a password",
+                    minlength: "Password must be at least 6 characters"
+                }
+            },
+            errorElement: 'span',
+            errorPlacement: function (error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.mb-3').append(error);
+            },
+            highlight: function (element, errorClass, validClass) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function (element, errorClass, validClass) {
+                $(element).removeClass('is-invalid');
+            },
+            submitHandler: function(form, e) {
+                e.preventDefault();
+                $('#saveBtn').prop('disabled', true).text('Processing...');
+
+                $.ajax({
+                    url: "{{ route('admin.admins.store') }}",
+                    type: "POST",
+                    data: $(form).serialize(),
+                    success: function(response) {
+                        $('#adminModal').modal('hide');
+                        $('#adminForm')[0].reset();
+                        $table.ajax.reload();
+                        showToast(response.success);
+                    },
+                    error: function(xhr) {
+                        let errors = xhr.responseJSON ? xhr.responseJSON.errors : null;
+                        let errorMsg = '';
+                        if (errors) {
+                            $.each(errors, function(key, value) {
+                                errorMsg += value[0] + ' ';
+                            });
+                        }
+                        showToast(errorMsg || 'Something went wrong!', 'error');
+                    },
+                    complete: function() {
+                        $('#saveBtn').prop('disabled', false).text('Create Admin');
+                    }
+                });
+            }
         });
     });
 </script>

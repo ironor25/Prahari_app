@@ -11,6 +11,7 @@ use App\Models\User;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
@@ -99,7 +100,7 @@ class AdminController extends Controller
 
     public function admins(Request $request) {
         if ($request->ajax()) {
-            $users = User::all();
+            $users = User::where('role', 'admin')->get();
             return DataTables::of($users)
                 ->addIndexColumn()
                 ->make(true);
@@ -117,10 +118,31 @@ class AdminController extends Controller
         User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password)
+            'password' => Hash::make($request->password),
+            'role' => 'admin'
         ]);
 
         return response()->json(['success' => 'Admin created successfully.']);
+    }
+
+    public function updateProfile(Request $request) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|min:6'
+        ]);
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+        $user->save();
+
+        return response()->json(['success' => 'Profile updated successfully.']);
     }
 
     public function index()

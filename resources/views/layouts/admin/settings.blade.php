@@ -51,6 +51,9 @@
                         <a class="nav-link active" id="general-tab" data-bs-toggle="tab" href="#general-settings" role="tab">General Settings</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" id="profile-tab" data-bs-toggle="tab" href="#profile-settings" role="tab">Profile</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" id="category-tab" data-bs-toggle="tab" href="#category-fines" role="tab">Modify  Fines</a>
                     </li>
                 </ul>
@@ -63,7 +66,7 @@
                             <form id="generalSettingsForm">
                                 <div class="mb-4">
                                     <label class="form-label fw-semibold">System Language</label>
-                                    <select class="form-select border-1 border-secondary">
+                                    <select class="form-select border-1 border-secondary" id="languageSelect">
                                         <option selected>English (Global)</option>
                                         <option>Hindi (Standard)</option>
                                         <option>Regional (Local)</option>
@@ -89,6 +92,27 @@
                                     <small class="text-muted">Percentage of the fine amount paid to the reporting Prahari.</small>
                                 </div>
                                 <button type="button" class="btn bg-body-tertiary text-white px-5">Save Configuration</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Profile Settings -->
+                    <div class="tab-pane" id="profile-settings" role="tabpanel">
+                        <div class="col-xl-6">
+                            <form id="profileSettingsForm">
+                                <div class="mb-4">
+                                    <label class="form-label fw-semibold">Name</label>
+                                    <input type="text" class="form-control border-1 border-secondary" name="name" value="{{ auth()->user()->name }}" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label fw-semibold">Email</label>
+                                    <input type="email" class="form-control border-1 border-secondary" name="email" value="{{ auth()->user()->email }}" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label fw-semibold">New Password (leave blank to keep current)</label>
+                                    <input type="password" class="form-control border-1 border-secondary" name="password" placeholder="Enter new password">
+                                </div>
+                                <button type="submit" class="btn bg-body-tertiary text-white px-5" id="saveProfileBtn">Update Profile</button>
                             </form>
                         </div>
                     </div>
@@ -155,11 +179,74 @@
 <script>
     $(document).ready(function() {
         // Tab switching logic (Bootstrap 5 standard)
-        $('#general-tab, #category-tab').click(function (e) {
+        $('#general-tab, #category-tab, #profile-tab').click(function (e) {
             e.preventDefault();
             $(this).tab('show');
             $('.tab-pane').removeClass('active');
             $($(this).attr('href')).addClass('active');
+        });
+
+        $('#languageSelect').change(function() {
+            let selectedLang = $(this).val();
+            $('html').attr('lang', selectedLang === 'Hindi (Standard)' ? 'hi' : 'en');
+            showToast("Language changed to " + selectedLang);
+        });
+
+        $('#generalSettingsForm .btn').click(function(e) {
+            e.preventDefault();
+            showConfirm("Save Configuration", "Are you sure you want to save these system configurations?", function() {
+                showToast("Configuration saved successfully!");
+            });
+        });
+
+        $('#profileSettingsForm').validate({
+            rules: {
+                name: { required: true },
+                email: { required: true, email: true },
+                password: { minlength: 6 }
+            },
+            messages: {
+                name: { required: "Please enter your name" },
+                email: { required: "Please enter your email", email: "Please enter a valid email" },
+                password: { minlength: "Password must be at least 6 characters" }
+            },
+            errorElement: 'span',
+            errorPlacement: function (error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.mb-4').append(error);
+            },
+            highlight: function (element, errorClass, validClass) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function (element, errorClass, validClass) {
+                $(element).removeClass('is-invalid');
+            },
+            submitHandler: function(form, e) {
+                e.preventDefault();
+                showConfirm("Update Profile", "Are you sure you want to update your profile details?", function() {
+                    $('#saveProfileBtn').prop('disabled', true).text('Updating...');
+                    $.ajax({
+                        url: "{{ route('admin.profile.update') }}",
+                        type: "POST",
+                        data: $(form).serialize(),
+                        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                        success: function(response) {
+                            showToast(response.success);
+                        },
+                        error: function(xhr) {
+                            let errors = xhr.responseJSON ? xhr.responseJSON.errors : null;
+                            let errorMsg = '';
+                            if (errors) {
+                                $.each(errors, function(key, value) { errorMsg += value[0] + ' '; });
+                            }
+                            showToast(errorMsg || 'Something went wrong!', 'error');
+                        },
+                        complete: function() {
+                            $('#saveProfileBtn').prop('disabled', false).text('Update Profile');
+                        }
+                    });
+                });
+            }
         });
 
         // Initialize Category DataTable
@@ -194,29 +281,31 @@
             let id = $('#cat_id').val();
             let url = "{{ route('admin.case_categories.index') }}/" + id + "/update";
 
-            $.ajax({
-                data: $(this).serialize(),
-                url: url,
-                type: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function (data) {
-                    $('#categoryModal').modal('hide');
-                    table.draw();
-                    alert(data.success);
-                },
-                error: function (data) {
-                    console.log('Error:', data);
-                    alert('Failed to update category.');
-                }
+            showConfirm("Update Category", "Are you sure you want to update this category?", function() {
+                $.ajax({
+                    data: $('#categoryForm').serialize(),
+                    url: url,
+                    type: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (data) {
+                        $('#categoryModal').modal('hide');
+                        table.draw();
+                        showToast(data.success);
+                    },
+                    error: function (data) {
+                        console.log('Error:', data);
+                        showToast('Failed to update category.', 'error');
+                    }
+                });
             });
         });
 
         // Delete Category (AJAX Delete)
         $('body').on('click', '.deleteBtn', function () {
             let id = $(this).data('id');
-            if (confirm("Are you sure you want to delete this category?")) {
+            showConfirm("Delete Category", "Are you sure you want to delete this category?", function() {
                 $.ajax({
                     type: "DELETE",
                     url: "{{ route('admin.case_categories.index') }}/" + id,
@@ -225,14 +314,14 @@
                     },
                     success: function (data) {
                         table.draw();
-                        alert(data.success);
+                        showToast(data.success);
                     },
                     error: function (data) {
                         console.log('Error:', data);
-                        alert('Failed to delete category.');
+                        showToast('Failed to delete category.', 'error');
                     }
                 });
-            }
+            });
         });
     });
 </script>
